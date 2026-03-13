@@ -10,11 +10,13 @@ Use this script tag to the `head` add the `calculating-octo-computing-machine-by
 ```
 Then, use this JavaScript function to compute it (Example):
 ```js
+const new_octoCBN = new OctoCalculatorByNeungsuksaeng();
 let result = OctoCalculatorByNeungsuksaeng.computeWithNeungsuksaeng('2*(2+3)+7/2-3');
 ```
 or
 ```js
-let result = octoCBN.compWN('2*(2+3)+7/2-3');
+const new_octoCBN = new octoCBN();
+let result = new_octoCBN.compWN('2*(2+3)+7/2-3');
 ```
 
 | Operator - *Description* | Operator - *Symbol* | Operator - *Usage* | Result - *Representation* | Result - *JavaScript result* |
