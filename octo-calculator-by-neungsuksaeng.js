@@ -68,7 +68,7 @@ class NeungsuksaengCalculateParser {
       this.currentToken = this.lexer.readNext();
       return token;
     }
-    throw new Error(`Unexpected token: %o`, ${this.currentToken});
+    throw new Error(`Unexpected token: %o`, this.currentToken);
   }
   parseFunctionCall(tokenInput) {
     let tokenRead = this.currentToken;
