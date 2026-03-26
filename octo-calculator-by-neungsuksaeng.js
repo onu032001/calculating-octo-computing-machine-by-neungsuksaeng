@@ -1,7 +1,8 @@
+// C:\Users\User\Desktop\프로그래밍\nodo\node.exe C:\Users\user\Desktop\능숙생계산.js
 class NeungsuksaengCalculateTokenizer {
   constructor() {
-    this.numberRegex = /^-?\d+(?:\.\d*)?$/g;
-    this.letterRegex = /^[A-Za-z_][A-Za-z\d_]*$/g;
+    this.numberRegex = /^-?\d+(?:\.\d*)?$/;
+    this.letterRegex = /^[A-Za-z_][A-Za-z\d_]*$/;
   }
   tokenize(expressionString) {
     let index = 0;
@@ -10,27 +11,32 @@ class NeungsuksaengCalculateTokenizer {
     while (index < expressionString.length) {
       const char = expressionString[index];
       if (char === ' ') continue;
-      if (/\d/.test(char)) {
+      if (/^\d$/.test(char)) {
         if (!(this.numberRegex.test(tempToken) || this.letterRegex.test(tempToken)) && tempToken !== '') {
           result.push(tempToken);
           tempToken = '';
         }
         tempToken += char;
       } else if (char === '.' || char === '-' && '+-*/^('.indexOf(result.at(-1)) >= 0) {
-        if (!(/^\d$/.test(tempToken)) && tempToken !== '') {
+        if (!(/^\d*$/.test(tempToken)) && tempToken !== '') {
           result.push(tempToken);
           tempToken = '';
         }
         tempToken += char;
-      } else if (/\w/.test(char)) {
+      } else if (/^[A-Za-z_]$/.test(char)) {
         if (!(this.letterRegex.test(tempToken)) && tempToken !== '') {
           result.push(tempToken);
           tempToken = '';
         }
         tempToken += char;
       } else {
+        if (tempToken !== '') {
+          result.push(tempToken);
+          tempToken = '';
+        }
         result.push(char);
       }
+      index++;
     }
     if (tempToken !== '') {
       result.push(tempToken);
@@ -38,9 +44,9 @@ class NeungsuksaengCalculateTokenizer {
     return result;
   }
 }
-class NeungsuksaengLexer {
+class NeungsuksaengCalculateLexer {
   constructor(tokens) {
-    this.tokens = tokens.map(token => {type: getType(token), token});
+    this.tokens = tokens.map(token => ({ type: this.getType(token), token }));
     this.position = 0;
   }
   getType(token) {
@@ -63,8 +69,8 @@ class NeungsuksaengCalculateParser {
     this.currentToken = this.lexer.readNext();
   }
   readNext(expectedType) {
-    if (this.currentToken.type === expected) {
-      const token = this.lexer.readNext();
+    if (this.currentToken.type === expectedType) {
+      const token = this.currentToken;
       this.currentToken = this.lexer.readNext();
       return token;
     }
@@ -77,7 +83,7 @@ class NeungsuksaengCalculateParser {
         this.readNext('open par');
         const subexpression = this.parseExpression();
         this.readNext('close par');
-        let result = { type: 'function call', functionName: tokenRead.name, input: subexpression };
+        let result = { type: 'function call', functionName: tokenInput.name, input: subexpression };
         return result;
       }
       return null;
@@ -94,8 +100,9 @@ class NeungsuksaengCalculateParser {
       let result = { type: 'identifier', name: tokenRead.token };
       tokenRead = this.currentToken;
       if (tokenRead.type === 'open par') {
-        this.parseFunctionCall(result);
+        result = this.parseFunctionCall(result);
       }
+      return result;
     } else if (tokenRead.type === 'open par') {
       this.readNext('open par');
       const subexpression = this.parseExpression();
@@ -106,7 +113,7 @@ class NeungsuksaengCalculateParser {
   }
   parseExponent() {
     let result = this.parseFactor();
-    while (this.currentToken == '^') {
+    while (this.currentToken?.token === '^') {
       const operator = this.currentToken;
       this.readNext('operator');
       const nextFactor = this.parseFactor();
@@ -116,7 +123,7 @@ class NeungsuksaengCalculateParser {
   }
   parseTerm() {
     let result = this.parseExponent();
-    while (this.currentToken == '^') {
+    while (this.currentToken?.token === '*' || this.currentToken?.token === '/') {
       const operator = this.currentToken;
       this.readNext('operator');
       const nextExponent = this.parseExponent();
@@ -126,7 +133,7 @@ class NeungsuksaengCalculateParser {
   }
   parseExpression() {
     let result = this.parseTerm();
-    while (this.currentToken == '+' || this.currentToken == '-') {
+    while (this.currentToken?.token === '+' || this.currentToken?.token === '-') {
       const operator = this.currentToken;
       this.readNext('operator');
       const nextTerm = this.parseTerm();
@@ -137,10 +144,42 @@ class NeungsuksaengCalculateParser {
 }
 class NeungsuksaengClass {
   constructor() {
+    this.funcs = {
+      sqrt: Math.sqrt, cbrt: Math.cbrt,
+      sin: Math.sin, cos: Math.cos, tan: Math.tan, sec: x => 1/Math.cos(x), csc: x => 1/Math.sin(x), cot: x => 1/Math.tan(x),
+      arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan, arcsec: x=>Math.acos(1/x), arccsc: x=>Math.asin(1/x), arccot: x=>Math.atan(1/x),
+      ln: Math.log, log: Math.log10, exp: Math.exp,
+      floor: Math.floor, ceil: Math.ceil, round: Math.round
+    };
+  }
+  operatorFunc(operation) {
+    return new Function('left', 'right', `return left ${operation === "^" ? "**" : operation} right;`);
+  }
+  calculateObject(obj, variables = {}) {
+    if (obj.type === 'number') {
+      return obj.value;
+    } else if (obj.type === 'identifier') {
+      if (obj.name === 'pi') {
+        return Math.PI;
+      }
+      const result = variables[obj.name];
+      if (result !== null && result !== undefined) {
+        return result;
+      }
+      throw new Error(`There is no such variable called \'${obj.name}\'`);
+    } else if (obj.type === 'operation') {
+      return this.operatorFunc(obj.operator)(calculateObject(obj.left, variables), calculateObject(obj.right, variables));
+    } else if (obj.type === 'function call') {
+      return this.funcs[obj.functionName](calculateObject(obj.input, variables));
+    }
+    return null;
   }
   calculate(expr) {
-    const tokens = parse(expr);
-    // More code snippets should be added here for calculating expressions.
+    const tokenizer = new NeungsuksaengCalculateTokenizer();
+    const tokenized = tokenizer.tokenize(expr);
+    const lexer = new NeungsuksaengCalculateLexer(tokenized);
+    const parser = new NeungsuksaengCalculateParser(lexer);
+    const parsed = parser.parseExpression();
   }
 }
 const neungsuk = new NeungsuksaengClass();
