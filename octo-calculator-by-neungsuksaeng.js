@@ -1,4 +1,3 @@
-// C:\Users\User\Desktop\프로그래밍\nodo\node.exe C:\Users\user\Desktop\능숙생계산.js
 class NeungsuksaengCalculateTokenizer {
   constructor() {
     this.numberRegex = /^-?\d+(?:\.\d*)?$/;
