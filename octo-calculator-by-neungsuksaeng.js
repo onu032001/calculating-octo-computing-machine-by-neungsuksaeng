@@ -161,6 +161,8 @@ class NeungsuksaengClass {
     } else if (obj.type === 'identifier') {
       if (obj.name === 'pi') {
         return Math.PI;
+      } else if (obj.name === 'e') {
+        return Math.E;
       }
       const result = variables[obj.name];
       if (result !== null && result !== undefined) {
@@ -174,12 +176,13 @@ class NeungsuksaengClass {
     }
     return null;
   }
-  calculate(expr) {
+  calculate(expr, variables = {}) {
     const tokenizer = new NeungsuksaengCalculateTokenizer();
     const tokenized = tokenizer.tokenize(expr);
     const lexer = new NeungsuksaengCalculateLexer(tokenized);
     const parser = new NeungsuksaengCalculateParser(lexer);
     const parsed = parser.parseExpression();
+    const result = this.calculateObject(parsed, variables);
   }
 }
 const neungsuk = new NeungsuksaengClass();
