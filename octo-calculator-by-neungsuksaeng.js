@@ -9,14 +9,17 @@ class NeungsuksaengCalculateTokenizer {
     const result = [];
     while (index < expressionString.length) {
       const char = expressionString[index];
-      if (/^\s$/.test(char)) continue;
+      if (/^\s$/.test(char)) {
+        index++;
+        continue;
+      }
       if (/^\d$/.test(char)) {
-        if (!(this.numberRegex.test(tempToken) || this.letterRegex.test(tempToken)) && tempToken !== '') {
+        if (!(this.numberRegex.test(tempToken) || this.letterRegex.test(tempToken) || tempToken === '-') && tempToken !== '') {
           result.push(tempToken);
           tempToken = '';
         }
         tempToken += char;
-      } else if (char === '.' || char === '-' && ('+-*/^('.indexOf(result.at(-1)) >= 0 || result === '')) {
+      } else if (char === '.' || char === '-' && tempToken === '' && ('+-*/^('.split('').includes(result.at(-1)) || result.length === 0)) {
         if (!(/^\d*$/.test(tempToken)) && tempToken !== '') {
           result.push(tempToken);
           tempToken = '';
