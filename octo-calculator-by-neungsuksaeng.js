@@ -16,7 +16,7 @@ class NeungsuksaengCalculateTokenizer {
           tempToken = '';
         }
         tempToken += char;
-      } else if (char === '.' || char === '-' && '+-*/^('.indexOf(result.at(-1)) >= 0) {
+      } else if (char === '.' || char === '-' && ('+-*/^('.indexOf(result.at(-1)) >= 0 || result === '')) {
         if (!(/^\d*$/.test(tempToken)) && tempToken !== '') {
           result.push(tempToken);
           tempToken = '';
