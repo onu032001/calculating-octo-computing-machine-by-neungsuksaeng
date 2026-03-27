@@ -178,13 +178,16 @@ class NeungsuksaengClass {
   tokenize(expr) {
     const tokenizer = new NeungsuksaengCalculateTokenizer();
     const tokenized = tokenizer.tokenize(expr);
-    const lexer = new NeungsuksaengCalculateLexer(tokenized);
+    return tokenized;
+  }
+  parse(tokens) {
+    const lexer = new NeungsuksaengCalculateLexer(tokens);
     const parser = new NeungsuksaengCalculateParser(lexer);
     const parsed = parser.parseExpression();
     return parsed;
   }
-  parse(tokens) {}
   calculate(expr, variables = {}) {
+    const parsed = this.parse(this.tokenize(expr));
     const result = this.calculateObject(parsed, variables);
     return result;
   }
