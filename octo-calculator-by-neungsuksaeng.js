@@ -9,7 +9,7 @@ class NeungsuksaengCalculateTokenizer {
     const result = [];
     while (index < expressionString.length) {
       const char = expressionString[index];
-      if (char === ' ') continue;
+      if (/^\s$/.test(char)) continue;
       if (/^\d$/.test(char)) {
         if (!(this.numberRegex.test(tempToken) || this.letterRegex.test(tempToken)) && tempToken !== '') {
           result.push(tempToken);
@@ -169,9 +169,9 @@ class NeungsuksaengClass {
       }
       throw new Error(`There is no such variable called \'${obj.name}\'`);
     } else if (obj.type === 'operation') {
-      return this.operatorFunc(obj.operator)(calculateObject(obj.left, variables), calculateObject(obj.right, variables));
+      return this.operatorFunc(obj.operator)(this.calculateObject(obj.left, variables), this.calculateObject(obj.right, variables));
     } else if (obj.type === 'function call') {
-      return this.funcs[obj.functionName](calculateObject(obj.input, variables));
+      return this.funcs[obj.functionName](this.calculateObject(obj.input, variables));
     }
     return null;
   }
