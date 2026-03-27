@@ -116,7 +116,7 @@ class NeungsuksaengCalculateParser {
       const operator = this.currentToken;
       this.readNext('operator');
       const nextFactor = this.parseFactor();
-      result = { operator, left: result, right: nextFactor };
+      result = { type: 'operation', operator, left: result, right: nextFactor };
     }
     return result;
   }
@@ -126,7 +126,7 @@ class NeungsuksaengCalculateParser {
       const operator = this.currentToken;
       this.readNext('operator');
       const nextExponent = this.parseExponent();
-      result = { operator, left: result, right: nextExponent };
+      result = { type: 'operation', operator, left: result, right: nextExponent };
     }
     return result;
   }
@@ -136,7 +136,7 @@ class NeungsuksaengCalculateParser {
       const operator = this.currentToken;
       this.readNext('operator');
       const nextTerm = this.parseTerm();
-      result = { operator, left: result, right: nextTerm };
+      result = { type: 'operation', operator, left: result, right: nextTerm };
     }
     return result;
   }
