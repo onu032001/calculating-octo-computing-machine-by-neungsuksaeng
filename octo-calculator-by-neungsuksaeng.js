@@ -175,13 +175,18 @@ class NeungsuksaengClass {
     }
     return null;
   }
-  calculate(expr, variables = {}) {
+  tokenize(expr) {
     const tokenizer = new NeungsuksaengCalculateTokenizer();
     const tokenized = tokenizer.tokenize(expr);
     const lexer = new NeungsuksaengCalculateLexer(tokenized);
     const parser = new NeungsuksaengCalculateParser(lexer);
     const parsed = parser.parseExpression();
+    return parsed;
+  }
+  parse(tokens) {}
+  calculate(expr, variables = {}) {
     const result = this.calculateObject(parsed, variables);
+    return result;
   }
 }
 const neungsuk = new NeungsuksaengClass();
