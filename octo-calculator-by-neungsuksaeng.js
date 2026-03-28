@@ -101,8 +101,10 @@ class NeungsuksaengCalculateParser {
       this.readNext('identifier');
       let result = { type: 'identifier', name: tokenRead.token };
       tokenRead = this.currentToken;
-      if (tokenRead.type === 'open par') {
-        result = this.parseFunctionCall(result);
+      if (tokenRead) {
+        if (tokenRead.type === 'open par') {
+          result = this.parseFunctionCall(result);
+        }
       }
       return result;
     } else if (tokenRead.type === 'open par') {
