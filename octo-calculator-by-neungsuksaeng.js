@@ -53,7 +53,7 @@ class NeungsuksaengCalculateLexer {
   }
   getType(token) {
     if (/^-?\d+(?:\.\d*)?$/.test(token)) return 'number';
-    if (/^\w(?:\w|\d)*$/.test(token)) return 'identifier';
+    if (/^[A-Za-z_][A-Za-z\d_]*$/.test(token)) return 'identifier';
     if (token === '(') return 'open par';
     if (token === ')') return 'close par';
     return 'operator';
